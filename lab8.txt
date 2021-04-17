@@ -1,0 +1,151 @@
+create or replace procedure proc4(id in number, name in varchar2, pr in number) as
+begin
+insert into book values(id, name,pr);
+dbms_output.put_line(' Book : '||id|| ': name : '||name||' : added to table');
+end;
+/
+
+
+create or replace procedure empproc(id in number) as
+no number;
+dep number;
+avsal number;
+begin
+select count(e2.mgr) into no,dname into dep,avg(sal) into avsal from (select eno,dname from emp,dept where deptno=dnum) e1 left join (select mgr,sal from emp) e2 on e1.eno=e2.mgr group by e1.eno,e1.dname having e1.eno=id;
+dbms_output.put_line(' dept : '||dep|| ': num : '||no||': avsal : '||avsal);
+end;
+/
+
+select e1.eno ,count(e2.mgr),dname,avg(sal) from 
+(select eno,dname from emp,dept where deptno=dnum) e1 left join (select mgr,sal from emp) e2 on e1.eno=e2.mgr group by e1.eno,e1.dname;
+
+
+
+create or replace procedure p1(a in number,b in number,c in number) as
+maxn number;
+minn number;
+begin
+if(a>=b) then
+if(a>=c) then 
+maxn:=a;
+else 
+maxn:=c;
+end if;
+else 
+if(b>=c) then 
+maxn:=b;
+else 
+maxn:=c;
+end if;
+end if;
+dbms_output.put_line(' max of 3 numbers '||maxn);
+end;
+/
+
+create or replace procedure p1(a in number)
+co number;
+begin
+select count(*) into co from emp where eno=a;
+if(co<5) then
+dbms_output.put_line(' Less emp');
+else
+dbms_output.put_line(' No of emp '||co);
+end if;
+end;
+/
+
+create or replace procedure p1 as
+   n number;
+   i number;
+   begin
+   n:=&n;
+   i:=1;
+   LOOP
+   dbms_output.put_line(' Current number '||i);
+   i:=i+1;
+   exit when i>n;
+   end LOOP;
+   end;
+   /
+
+
+
+create or replace procedure p1(n in number) as
+i number;
+nof number;
+begin
+nof:=0;
+for i in 2..sqrt(n)
+loop
+if(mod(n,i)=0) then
+nof:=nof+1;
+end if;
+end loop;
+if(nof=0) then
+dbms_output.put_line('prime');
+else
+dbms_output.put_line('not prime');
+end if;
+end;
+/
+
+create or replace function p2(n in number) return number as
+i number;
+nof number;
+begin
+nof:=0;
+for i in 2..sqrt(n)
+loop
+if(mod(n,i)=0) then
+nof:=nof+1;
+end if;
+end loop;
+if(nof=0) then
+dbms_output.put_line('prime');
+return 1;
+else
+dbms_output.put_line('not prime');
+return 0;
+end if;
+end;
+/
+select p2(13) from dual;
+
+create or replace function p2(n in number) return number as
+i number;
+fact number;
+begin
+i:=1;
+fact:=1;
+for i in 2..n
+loop
+fact:=fact*i;
+end loop;
+return fact;
+end;
+/
+
+create or replace function p2(n in number) return number as
+i number;
+begin
+select count(*) into i from emp where deptno=n;
+return i;
+end;
+/
+
+create or replace function p2(n in number) return number as
+i number;
+begin
+select sal into i from emp where eno=n;
+return i;
+end;
+/
+
+
+create function fact(n in number) as
+begin
+if (n = 1) then 
+dbms_output.put_line(n);
+end;
+else
+n := n * fact(n-1);

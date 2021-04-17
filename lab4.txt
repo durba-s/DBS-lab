@@ -1,0 +1,59 @@
+insert into dept values(50, 'MARKETING','BOSTON');
+insert into dept values(60,'PRODUCTION', 'SAN FRAN');
+insert into emp values(7947,'MIKE','CLERK',7900,'18-MAY-85',1500,200,50);
+insert into emp values(7954,'BILL','MANAGER',7782,'20-FEB-81',1000,0,NULL);
+//join emp and dept
+select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum;
+
+1)select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum and e.ename like 'J____';
+2)select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum and e.ename like '%IN%';
+3)select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum and e.ename like '____';
+or
+select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum and length(e.ename)=4;
+4)select eno,ename,deptno,sal from emp order by deptno asc,ename desc;
+
+5)//select eno,ename from emp where deptno in(select dnum from dept);
+//select eno,ename from emp where deptno not in(select dnum from dept);
+//select eno,ename from emp where exists(select dnum from dept,emp where dnum=deptno);
+//select eno,ename from emp where not exists(select dnum from dept,emp where dnum=deptno);
+select * from emp where deptno is null;
+
+null vallue stores some garbage value
+
+6)select eno,ename,dname from emp MINUS (select eno,ename from emp where deptno IS NOT NULL);
+OR
+select eno, ename from
+   emp
+   minus
+  select eno, ename from emp, dept where deptno=dnum;
+OR
+select eno, ename from
+   emp
+   minus
+   select eno, ename from emp where deptno in(select dnum from dept);
+
+7)select e.eno,e.ename,d.dname from emp e,dept d where e.deptno=d.dnum and d.dloc='BOSTON';
+
+select eno,ename,dname from emp,dept where deptno=dnum and dnum in(select dnum from dept where dloc='BOSTON');
+
+select eno,ename,dname from emp,dept where deptno=dnum and exists(select dnum from dept where dloc='BOSTON' and deptno=dnum );
+
+8)select eno,ename,sal from emp where sal>=(select avg(Sal) from emp);
+
+9)select dnum,dname from dept where not exists(select * from emp where dnum=deptno);
+select dnum,dname from dept where dnum not in(select deptno from emp where dnum=deptno);
+
+10)select e.eno,e.ename,e.mgr,e1.ename from emp e,emp e1 where e.mgr=e1.eno;
+
+11)select e.eno,e.ename from emp e,emp e1 where e.mgr=e1.eno and e1.deptno in (select dnum from dept where dname='SALES');
+select e.eno,e.ename from emp e,emp e1 where e.mgr=e1.eno and e1.deptno in (select dnum from dept where dname='SALES');
+or
+ select e.eno, e.ename
+  2  from emp e, emp e1, dept d1
+  3  where e.mgr = e1.eno and e1.deptno = d1.dnum and d1.dname = 'SALES';
+or
+select eno,ename from emp where mgr in(select eno from emp,dept where deptno=dnum and dname='SALES');
+
+12)select eno,ename from emp where mgr in(select empno from emp where ename='BLAKE');
+13)select eno,ename from emp where deptno in(select dnum from dept where dname='SALES');
+select eno,ename from emp where exists(select * from dept where dname='SALES' and dnum=deptno);

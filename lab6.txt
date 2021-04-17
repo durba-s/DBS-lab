@@ -1,0 +1,93 @@
+create table part (pid int,pname varchar(10),price int);
+INSERT INTO PART VALUES (101, 'Scale', 30);					
+INSERT INTO PART VALUES (104, 'Sketch', 10);					
+INSERT INTO PART VALUES (105, 'Tape', 15);					
+INSERT INTO PART VALUES (107, 'Pad', 160);					
+INSERT INTO PART VALUES (110, 'Ink', 25);					
+INSERT INTO PART VALUES (112, 'Pin', 5);					
+INSERT INTO PART VALUES (124, 'Chalk', 120);					
+INSERT INTO PART VALUES (135, 'Paper', 80);
+
+create table vendor (vid int,vname varchar(10),vloc varchar(10));
+INSERT INTO VENDOR VALUES (3, 'Crown', 'Delhi');					
+INSERT INTO VENDOR VALUES (5, 'Topper', 'Delhi');					
+INSERT INTO VENDOR VALUES (7, 'Avon', 'Mumbai');					
+INSERT INTO VENDOR VALUES (11, 'Swan', 'Hyderabad');					
+INSERT INTO VENDOR VALUES (13, 'Rally', 'Chennai');					
+INSERT INTO VENDOR VALUES (15, 'Buddy', 'Chennai');
+
+create table supply (pid int ,vid int,qty int,foreign key (pid) references part(pid),foreign key (vid) references vendor(vid),CONSTRAINT PK_Person PRIMARY KEY (pid,vid));
+INSERT INTO SUPPLY VALUES (104, 7, 420);					
+INSERT INTO SUPPLY VALUES (104, 13, 380);					
+INSERT INTO SUPPLY VALUES (105, 13, 350);					
+INSERT INTO SUPPLY VALUES (107, 5, 500);					
+INSERT INTO SUPPLY VALUES (107, 11, 200);					
+INSERT INTO SUPPLY VALUES (107, 7, 10);					
+INSERT INTO SUPPLY VALUES (110, 3, 22);					
+INSERT INTO SUPPLY VALUES (110, 5, 35);					
+INSERT INTO SUPPLY VALUES (110, 13, 150);					
+INSERT INTO SUPPLY VALUES (110, 15, 20);					
+INSERT INTO SUPPLY VALUES (124, 7, 300);					
+INSERT INTO SUPPLY VALUES (124, 11, 34);					
+INSERT INTO SUPPLY VALUES (124, 13, 12);
+
+Select v.vid,v.vname, count(s.pid) from vendor v, part p, supply s where v.vid = s.vid and p.pid=s.pid and p.price>70 group by v.vid,v.vname;
+
+
+1//get pid,pname for those not supplied by any vendor
+-->SELECT PID, PNAME FROM PART WHERE PID NOT IN (SELECT PID FROM SUPPLY);
+-->SELECT P.PID, P.PNAME FROM PART P WHERE NOT EXISTS (SELECT * FROM SUPPLY S WHERE P.PID = S.PID);
+-->(SELECT PID, PNAME FROM PART) MINUS (SELECT P.PID, P.PNAME FROM PART P, SUPPLY S WHERE S.PID = P.PID);
+
+2//get pid,pname which are supplied by all vendors from delhi
+-->SELECT P.PID, P.PNAME FROM PART P WHERE NOT EXISTS((SELECT V.VID FROM VENDOR V WHERE V.VLOC = 'DELHI') MINUS (SELECT S.VID FROM SUPPLY S WHERE S.PID = P.PID));
+-->SELECT P.PID, P.PNAME FROM PART P WHERE (SELECT COUNT(*) FROM SUPPLY S, VENDOR V WHERE S.PID = P.PID AND S.VID = V.VID AND V.VLOC = 'DELHI')=(SELECT COUNT(*) FROM VENDOR V WHERE V.VLOC = 'DELHI');
+
+3//get for delhi based vendors vid,vname if they supply atleast 3 parts
+-->SELECT V.VID, V.VNAME FROM VENDOR V, SUPPLY S WHERE S.VID = V.VID AND V.VLOC = 'CHENNAI' GROUP BY V.VID. V.VNAME HAVING COUNT(*)>2;
+//  select v.vid, v.vname from vendor v, supply s where s.vid = v.vid and v.vloc = 'Delhi' group by v.vid, v.vname having count(*)>=3;he
+-->SELECT V.VID, V.VNAME FROM VENDOR V WHERE V.VID NOT IN (SELECT S.VID FROM SUPPLY S, PART P WHERE S.PID = P.PID AND P.PRICE.100);
+-->(SELECT V.VID, V,VNAME FORM VENDOR) MINUS (SELECT V,VID, V.VNAME FROM VENDOR V, SUPPLY S, PART P WHERE S.VID = V.VID AND S.PID = P.PID AND P.PRICE>100);
+// select s.vid, count(*) from supply s group by s.vid having count(*) >= 3;
+ //select v.vid, v.vname from vendor v where vid in(select s.vid from supply s group by s.vid having count(*) >= 3) and v.vloc = 'Delhi';
+
+
+4//get vid,vname for those not supplying any part  with price greater than 100
+-->SELECT V.VID, V.VNAME FROM VENDOR V WHERE NOT EXISTS(SELECT * FROM SUPPLY S, PART P WHERE S.VID = V.VID AND P.PID = S.PID AND P.PRICE>100);
+-->(SELECT V.VID, V,VNAME FORM VENDOR) MINUS (SELECT V,VID, V.VNAME FROM VENDOR V, SUPPLY S, PART P WHERE S.VID = V.VID AND S.PID = P.PID AND P.PRICE>100);
+-->
+
+5//for each part get pid,pname and no of chennai based vendors supplying it
+-->//SELECT P.PID, P.PNAME FROM PART P, SUPPLY S, VENDOR V WHERE P.PID = S.PID AND S.VID = V.VID AND V.VLOC = 'CHENNAI' GROUP BY P.PID, P.PNAME;
+-->select p.pid,p.pname,count(s.pid) noChenVend from part p left outer join (select s.pid from vendor v, supply s where s.vid=v.vid and v.vloc='Chennai') s on p.pid=s.pid group by p.pid,p.pname;
+-->
+
+6//get vid and vname for those vendors supplying all parts with price greater than 100
+-->SELECT V.VID, V.VNAME FROM VENDOR V WHERE NOT EXISTS((SELECT P.PID FROM PART P WHERE P.PRICE>100)MINUS(SELECT S.PID SUPPLY S WHERE S.VID = V.VID));
+-->
+-->
+
+7//for each part get pid,pname and number of vendors supplying it
+-->select p.pid,p.pname,count(t.pid) from part p left join supply t on t.pid=p.pid group by p.pid,p.pname;
+-->
+-->
+
+8//get vid,vname if they are supplying atleast 3 parts
+-->select v.vid,v.vname,count(t.pid) from vendor v left join supply t on t.vid=v.vid group by v.vid,v.vname having count(t.pid)>2;
+-->
+-->
+
+9//get vid,vname for those supplying the part 'Pad'
+-->select vid,vname from vendor where vid in(select vid from supply where pid in(select pid from part where pname='Pad'));
+-->
+-->
+
+10//get vid,vname for those supplying atleast one part in qty greater than 250
+-->select vid,vname from vendor where vid in(select vid from supply where qty>250);
+-->
+-->
+
+11//get vid,vname and number of parts they supply with qty greater than 100
+--> select v.vid,v.vname,count(s.qty) from vendor v left join (select * from supply where qty>100) s on v.vid=s.vid group by v.vid,v.vname;
+-->
+-->

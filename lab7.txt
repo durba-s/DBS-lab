@@ -1,0 +1,99 @@
+set linesize 300
+set serveroutput on
+
+declare
+a number;
+b number;
+c number;
+begin
+a:=6;
+b:=8;
+c:=a+b;
+dbms_output.put_line('sum='||c);
+end;
+/
+____________________________________________________________________
+declare
+noe number;
+begin
+select count(*) into noe from emp where deptno=&deptno;
+dbms_output.put_line('sum='||c);
+end;
+/
+_________________________________________________________________________________________
+DECLARE 
+Noe number;
+Begin
+Select count(*) into noe from emp where job='clerk';
+dbms_output.put_line(noe);
+end;
+/
+__________________________________________________________________________________________
+Select count(*) into noe from emp where job='&job';
+_________________________________________________________________________________________
+procedure=set of sql statements
+exec proc1
+_________________________________________________________________________________________
+create or replace procedure proc1 as 
+noe number;
+begin
+select count(*) into noe from emp where deptno=&deptno;
+dbms_output.put_line(noe);
+end;
+_____________________________________________________________________________________________
+procedure with arguments
+in:read only
+out:write only
+inout:read and write
+
+
+create or replace procedure proc1( a in number,b in number,c out number) as
+begin
+c:=a+b;
+end;
+/
+
+declare
+c number;
+begin
+proc1(10,12,c);
+dbms_output.put_line(c);
+end;
+/
+
+_________________________________________________________________________________________
+create or replace procedure store(dnum in number, noe out number) as
+begin
+select count(*) into noe from emp where deptno=dnum groupby deptno;
+end;
+/
+declare 
+noe number;
+dno number;
+begin
+dno:=&dno;
+proc1(dno,noe);
+dbms_output.put_line('no of employees '||noe);
+end;
+/
+
+select proc1
+
+
+
+
+
+
+
+
+
+
+
+create or replace procedure proc1(a in number,b in number, c out number, d out number,e out number,f out number) as 
+begin 
+c:=a*b;
+d:=a+b;
+e:=a-b;
+f:=a/b;
+end;
+/

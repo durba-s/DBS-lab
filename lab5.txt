@@ -1,0 +1,65 @@
+1)select max(sal),min(sal),avg(sal) from emp where deptno=10;
+or
+select min(sal), max(sal), avg(sal) from emp group by deptno having deptno=10;
+//max,min avg sal of research dept
+select max(sal),min(sal),avg(sal) from emp where deptno in(select dnum from dept where dname='RESEARCH');
+//max,min avg sal of all dept
+select min(sal), max(sal), avg(sal) from emp group by deptno;
+//dno,dname,count,max,min avg sal of all dept
+select e.deptno,d.dname,count(*),min(e.sal), max(e.sal), avg(sal) from emp e,dept d where e.deptno=d.dnum group by e.deptno,d.dname;
+//above query for dnum=20
+select e.deptno,d.dname,count(*),min(e.sal), max(e.sal), avg(sal) from emp e,dept d where e.deptno=d.dnum group by e.deptno,d.dname having e.deptno in (10,20);
+
+2)select count(*) from emp where deptno in (10,20) group by deptno;
+
+3)select sum(sal) select from emp where job='CLERK'
+
+4)select job, count(*),avg(sal) from emp group by job;
+
+5)select e.eno, e.ename, d.dname from emp e, dept d where d.dnum=e.deptno and (e.ename like '%ER' or e.ename like '%EN');
+cannot write in after like
+
+6)explicit join
+left outer join:select eno,dname from emp left join dept on deptno=dnum;
+		select eno,dname from dept left join emp on deptno=dnum;
+right outer join:select eno,dname from emp right join dept on deptno=dnum;
+		 select eno,dname from dept right join emp on deptno=dnum;
+full outer join:select eno,dname from emp full join dept on deptno=dnum;
+		 select eno,dname from dept full join emp on deptno=dnum;
+self join:select e1.eno,e1.ename,e2.ename from emp e1,emp e2 where e1.mgr=e2.eno;
+
+7)select e1.eno,e1.ename,e2.ename from emp e1,emp e2,dept d where e1.mgr=e2.eno and e1.deptno=d.dnum and d.dname='SALES';
+aliter
+select e.eno,e.ename,m.ename from emp e, emp m where e.mgr=m.eno and e.deptno in(select dnum from dept where dname='SALES');
+
+8)select d.dnum,d.dname,e.eno from emp e,dept d where e.deptno=d.dnum and e.sal>=1300;
+select d.dnum,d.dname,count(*) from emp e,dept d where e.deptno=d.dnum and e.sal>=1300 group by d.dnum,d.dname;
+//print 0 also
+select d.dnum,d.dname,count(*) from dept d left join emp e on e.deptno=d.dnum group by d.dnum,d.dname;//incorrect since there are record with not null value since even though eid is null loc is present
+select d.dnum,d.dname,count(e.eno) from dept d left join emp e on e.deptno=d.dnum group by d.dnum,d.dname;
+
+9)select e2.eno,e2.ename from emp e1,emp e2 where e2.eno=e1.mgr group by e2.eno,e2.ename;
+
+10)select e2.eno,e2.ename,count(*) from emp e1,emp e2 where e2.eno=e1.mgr group by e2.eno,e2.ename;
+OR
+select e1.mgr,e2.ename,e1.cou from (select mgr,count(*) cou from emp group by mgr) e1,emp e2 where e1.mgr=e2.eno;
+
+//select mgr,count(*) from emp group by mgr;
+//select e2.eno,e2.ename,count(*) from emp e1,emp e2 where e2.eno=e1.mgr group by e2.eno,e2.ename;
+
+//to print 0 also
+select e1.eno,e2.mgr,count(e2.mgr) from (select eno from emp) e1 left join (select mgr from emp) e2 on e1.eno=e2.mgr group by e1.eno,e2.mgr;
+
+11)select eno,ename from emp where comm is null or comm=0;
+
+12)select e1.eno ,e1.ename from emp e1 where e1.deptno not in (select dnum from dept d where d.dnum=e1.deptno and d.dname='SALES');
+or
+select eno,ename from emp where deptno not in (select dnum from dept where dname='SALES');
+13)select eno,ename from emp where deptno not in (select dnum from dept where dloc='BOSTON');
+
+-----------
+VIEWS
+-----------
+create or replace view empd as select eno,ename,job,mgr,deptno from emp;
+create or replace view empd as select e.eno,e.ename,e.job,d.dname,d.dloc from emp e,dept d where e.deptno=d.dnum;
+

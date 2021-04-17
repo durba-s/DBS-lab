@@ -1,0 +1,277 @@
+lab 8
+1)SQL> create or replace procedure proc1(arg1 in number, arg2 out number) as
+ n number;
+ begin
+ n:=arg1+10;
+ arg2:=60;
+ end;
+ /
+2)declare
+ m number;
+ p number;
+ begin
+ m:=20;
+ p:=5;
+ dbms_output.put_line(' :'||m ||' :'||p);
+ proc1(m,p);
+ dbms_output.put_line(' :'||m ||' :'||p);
+ end;
+ /
+:20 :5
+:20 :60
+3)create or replace procedure proc6(id in number, name in varchar2, pr in number) as
+begin
+insert into book values(id, name,pr);
+dbms_output.put_line(' Book : '||id|| ': name : '||name||' : added to table');
+end;
+/
+4)create or replace procedure proc8(id in number, name in varchar2, sal in nu
+mber, dep in number) as
+ n number;
+ begin
+ insert into emp values(id, name,sal,dep);
+ select count(*) into n from emp where dno=dep;
+ update dept set total_emps=n where dnum=dep;
+ dbms_output.put_line(' Insert and update done for eid: '|| id ||' ');
+ end;
+/
+5)create or replace procedure proc22(id in number) as 
+pr number;
+name varchar(10);
+begin
+select title, price into pr,name from book where bid=id;
+dbms_output.put_line(' For the book with bid: '|| id ||' Title is: '||name||’
+price is : ‘||pr);
+end;
+/
+6)SQL> create or replace procedure proc8 as
+ n number:=10;
+ begin
+ loop
+ dbms_output.put_line(' Value of n is: '||n||' ');
+ n:=n+10;
+ exit when n>100;
+ end loop;
+ end;
+ /
+ exec proc8;
+7)create function Func1(arg in number) return number is
+var number;
+ begin
+ select price into var from book where bid=arg;
+
+ return var;
+
+ end;
+ /
+declare
+2 n number;
+3 begin
+4 n:=Func1(107);
+5 dbms_output.put_line(' '||' price is : '||n);
+6 end;
+7 /
+
+Example 8: write a function to take two numbers and return the sum
+create or replace function Func2(a in number, b in number) return number is
+2 n number;
+3 begin
+4 n:=a+b;
+5 return n;
+6 end;
+7 /
+//anonymous code to call the function Func2
+declare
+2 s number;
+3 begin
+4 s:=Func2(20,10);
+5 dbms_output.put_line(' '||' the sum is : '||s);
+6 end;
+7 /
+the sum is : 30
+
+_________________________________________________________________________________-
+PL sql functions return only 1 value
+Select statement ->multiple values
+implicit cursor-> points to first value in table
+
+explicit cursor->created by us
+attributes 
+%rowcount  //gives the no of rows fetched
+%found    //true if exists and false ow
+%notfound //true if notexists
+%isopen // returns true if cursor is open
+
+eg) using implicit cursor
+declare
+	toe number;
+begin
+	update emp
+	set sal=sal+5000;
+	if sql%notfound then
+		dbms_output.put_line('no emp updated');
+	elsif sql%found then
+		toe:=sql%rowcount;
+		dbms_output.put_line(toe||' emp updated');
+        end if;
+end;
+/
+eg1)create or replace procedure proc55 as
+ id number;
+ pr number;
+ cursor book_cursor is
+ select bid,price from book;
+ begin
+ open book_cursor;
+ loop
+ fetch book_cursor into id,pr;
+ exit when book_cursor%notfound;
+ dbms_output.put_line('For the book with id: '||id||' the price is: '||pr);
+ end loop;
+close book_cursor;
+ end;
+ /
+
+
+eg)create or replace procedure p1 as
+noe number;
+dno number;
+cursor c1 is 
+select count(*) noep,deptno from emp group by deptno;
+begin
+open c1;
+loop
+fetch c1 into
+
+
+
+
+create stored proc 
+pass deptno
+print eno,ename,sal of emp in that dept
+Sol
+create or replace procedure p1(d in number) as
+empno number;
+empname varchar2(15);
+empsal number;
+d1 number;
+cursor c1 is 
+select eno,ename,sal,deptno from emp;
+begin
+open c1;
+loop
+fetch c1 into empno,empname,empsal,d1;
+exit when c1%notfound;
+if(d1=d) then
+dbms_output.put_line('For the emp with id: '||empid||' name is: '||empname||' salary is '||empsal);
+end if;
+end loop;
+end;
+/
+
+create or replace procedure proc55(d in number) as
+ id number;
+ en varchar2(15);
+ d1 number;
+ cursor emp_cursor is
+ select eno,dname,deptno from emp,dept where deptno=dnum;
+ begin
+ open emp_cursor;
+ loop
+ fetch emp_cursor into id,en,d1;
+ exit when emp_cursor%notfound;
+ if(d1=d) then
+ dbms_output.put_line('For the emp with id: '||id||' the dname is: '||en);
+ end if;
+ end loop;
+end;
+/
+
+q)
+create or replace procedure proc55 as
+ id number;
+ en varchar2(15);
+ cursor emp_cursor is
+ select eno,dname from emp,dept where deptno=dnum;
+ begin
+ open emp_cursor;
+ loop
+ fetch emp_cursor into id,en;
+ exit when emp_cursor%notfound;
+ dbms_output.put_line('For the emp with id: '||id||' the dname is: '||en);
+ end loop;
+end;
+/
+___________________________________________________________________________________________
+Sequences in PLSQL
+Sequence objects are used to generate keys automatically
+SQL> create sequence bookid_seq start with 500;
+Sequence created.
+SQL> insert into book values(bookid_seq.nextval, ‘Biology’ , 650); // bid=500
+SQL> insert into book values(bookid_seq.nextval, ‘History’ , 800); // bid=501
+___________________________________________________________________________________________
+Trigger 
+asso with db table
+more than 1 trigg for 1 db
+insert update and call stored proc
+row level and table level triggers
+one time for affected row----row level
+one time for each transaction----table level
+eg1)create trigger T1 after insert  or update on book
+begin
+ dbms_output.put_line('Updated Book table');
+ end;
+ /
+eg2)create or replace trigger T1 after insert  or update on book
+for each row
+begin
+ dbms_output.put_line('Updated Book table');
+ end;
+ /
+q)Write a trigger to print avg sal of emp after insertion/deletion
+create or replace trigger T1 after insert or delete on emp
+declare
+s number;
+begin
+ select avg(sal) into s from emp;
+ dbms_output.put_line('Average salary '||s);
+ end;
+ /
+
+
+on row level trigger we can use new and old concept(before and after updation)
+
+
+Q) Create the trigger to display to display total no of emp in dept
+create or replace trigger T1 after insert or update on emp
+declare
+dn varchar2(20);
+ cou number;
+ cursor emp_cursor is
+ select dname,count(*) from emp,dept where deptno=dnum group by deptno,dname;
+ begin
+ open emp_cursor;
+ loop
+ fetch emp_cursor into dn,cou;
+ exit when emp_cursor%notfound;
+ dbms_output.put_line('For the dept : '||dn||' the count is: '||cou);
+ end loop;
+end;
+/
+
+create or replace procedure proc55 as
+ id varchar2(20);
+ cou number;
+ cursor emp_cursor is
+ select dname,count(*) from emp,dept where deptno=dnum group by deptno,dname;
+ begin
+ open emp_cursor;
+ loop
+ fetch emp_cursor into id,cou;
+ exit when emp_cursor%notfound;
+ dbms_output.put_line('For the dept : '||id||' the count is: '||cou);
+ end loop;
+end;
+/
+
+

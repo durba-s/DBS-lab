@@ -1,0 +1,89 @@
+Functions in sql
+1)select chr(65) from dual;//prints ascii value
+2)select concat('a','b') from dual;//concatenation
+select concat('ab','bc') from dual;
+3)select instr('abc','b') from dual;//gives loc 1 indexed ''0 if not present
+4)select length(123) from dual;//gives length
+select length('abc') from dual;
+select length(45.67) from dual;
+5)select lpad(4,'BITS','H') from dual;//pads before;  4 is length of final
+select lpad(10,'BITS','H') from dual;
+select lpad(4,'B','H') from dual;
+select lpad(4,1,3) from dual;
+6)select ltrim('.....BITS','.') from dual;//removes char before string
+select ltrim('      BITS') from dual;//removes left spaces
+select ltrim('.........BITS') from dual;//nothing happens
+7)select rpad(4,'BITS','H') from dual;//pads after;  4 is length of final
+select rpad('BITS',10,'H') from dual;
+select rpad('B',4,'H') from dual;
+select rpad(4,5,3) from dual;
+8)select replace('hello','he','pi') from dual; //replace all occurences of he with pi
+select replace('hellohehe','he','pi') from dual;
+10)substring starting pos=2, no of char=3
+select substr('BITS-HYD',2,3) from dual;
+select substr('BITS-HYD',9,12) from dual;// returns nothing
+11)initcap ->makes first small as capital and rest as small
+select initcap('bitsh') from dual;
+select initcap('biTSH') from dual;
+12)lower
+select lower('BITSH') from dual;
+13)upper
+select upper('bitsh') from dual;
+14)translate(char,from string,to string)  //a mapping btw char if extra char then loop, if no cooresponding mappinf same thing sidplayed
+select translate('h','BITSH','HYDA') from dual;  op=h
+select translate('H','BITSH','HYDA') from dual;   op=A
+select translate('HA','BITSH','HYDA') from dual;   op=A
+select translate(101,134,567) from dual;//works for numbers also
+select translate('S','BISS','HYDA') from dual; from dual;//considers the first mapping; starts mapping from left
+15)abs(n)
+select abs(-31) from dual;
+16)ceil(n) upper integer closest
+select  from dual;
+17)cos(n)  cosine
+select  from dual;
+18)exp(n)  e^x
+select exp(1) from dual;
+19)floor(n) lower integer closes
+select  from dual;
+20)mod(m,n)  m%n
+select  from dual;
+21)power(x,y)  x^y
+select  from dual;
+22)round(x[,y]) round up x to y values
+select round(5) from dual;
+select round(1113.3271,2) from dual; //round up
+select round(1113.3271,1) from dual;
+select round(1113.3571,1) from dual;
+23)sign(n)  gives sign -1 if -ve and 1 if +ve and 0 if 0
+select sign(-2) from dual;
+select sign(2) from dual;
+select sign(0) from dual;
+24)sqrt(n) gives square root, n must be positive
+select sqrt(2) from dual;
+25)trunc(x,n) simply removes the (n+1)th decimal
+select trunc(1113.346,2)  from dual;
+trunc vs round
+select trunc(1113.346,2)  from dual;  1113.34
+select round(1113.346,2)  from dual;  1113.35
+26)sysdate
+select sysdate from dual;  07-APR-21
+27)add_months(d,n)
+select add_months('02-FEB-21',5) from dual;
+28)last_day()
+select last_day(sysdate) from dual;
+select last_day('02-FEB-21') from dual;
+29)months_between(date1,date2)
+select months_between('02-FEB-21','07-APR-21') from dual;  -2.16
+select months_between('07-APR-21','02-FEB-21') from dual;   2.16
+30)next_day(date,char)
+select next_day('02-FEB-21','MON') from dual;
+31)greatest(expr)
+select greatest(7,8,9) from dual;
+32)least(expr)
+select least(7,8,9) from dual;
+33)select to_date(sysdate) from dual;
+
+
+real life appl of lpad
+->to make section uniform/inform in a report/certificate
+overleaf.com

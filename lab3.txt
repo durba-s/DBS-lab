@@ -1,0 +1,73 @@
+create table emp(eno int primary key,ename varchar(15),job varchar(10),mgr int,hiredate date,sal int,comm int,deptno int,foreign key(mgr) references emp(eno),foreign key(deptno) references dept(dnum));
+
+INSERT INTO emp VALUES (7839,'KING','PRESIDENT',NULL,'17-NOV-81',5000,NULL,10);
+INSERT INTO emp VALUES (7566,'JONES','MANAGER',7839,'02-APR-81',2975,NULL,20);
+INSERT INTO emp VALUES (7698,'BLAKE','MANAGER',7839,'01-MAY-81',2850,NULL,30);
+INSERT INTO emp VALUES (7782,'CLARK','MANAGER',7839,'09-JUN-81',2450,NULL,10);
+INSERT INTO emp VALUES (7499,'ALLEN','SALESMAN',7698,'20-FEB-81',1600,300,30);
+INSERT INTO emp VALUES (7521,'WARD','SALESMAN',7698,'22-FEB-81',1250,500,30);
+INSERT INTO emp VALUES (7900,'JAMES','CLERK',7698,'03-DEC-81',950,NULL,30);
+INSERT INTO emp VALUES (7844,'TURNER','SALESMAN',7698,'08-SEP-81',1500,0,30);
+INSERT INTO emp VALUES (7902,'FORD','ANALYST',7566,'03-DEC-81',3000,NULL,20);
+INSERT INTO emp VALUES (7934,'MILLER','CLERK',7782,'23-JAN-82',1300,NULL,10);
+INSERT INTO emp VALUES (7788,'SCOTT','ANALYST',7566,'19-APR-87',3000,NULL,20);
+INSERT INTO emp VALUES (7654,'MARTIN','SALESMAN',7698,'28-SEP-81',1250,1400,30);
+
+INSERT INTO emp VALUES (7876,'ADAMS','CLERK',7788,'23-MAY-87',1100,NULL,20);
+INSERT INTO emp VALUES (7369,'SMITH','CLERK',7902,'17-DEC-80',800,NULL,20);
+1)select * from emp;
+2)select eno,ename from emp;
+3)select * from emp where job='CLERK';
+4)select eno,ename,sal from emp where job='MANAGER';
+5)select eno,ename,sal from emp where job='MANAGER' and deptno=30;
+6)select eno,ename,hiredate from emp where hiredate>'01-JUN-81';
+select count(*) from emp;
+
+To rename labels
+select eno emp_number,ename from emp;
+
+asc order 
+7)select eno, ename, sal, deptno from emp order by deptno asc;
+desc order
+8)select eno, ename, sal, deptno from emp order by deptno desc;
+pattern
+select eno,ename from emp where ename like 'A%';
+select eno,ename from emp where ename like '%S';
+select eno,ename from emp where ename like '_A%';
+select eno,ename from emp where ename like '_A';
+
+select * from emp where dept in (10,20);
+
+emp whose manager belongs to 30
+select e1.ename from emp e1,emp e2 where e1.mgr=e2.eno and e2.deptno=30;
+
+select ename from emp where emp.mgr.deptno=30;
+
+9)select eno,ename,sal,deptno from emp order by deptno asc,sal desc;
+emp of same dept will be sorted in decreasing order of sal
+10)select ename form emp where sal>2000 and job='CLERK';
+11)select * from emp where sal>1000 and sal<1500;
+12)select * from emp where deptno in (10,30);
+notin
+select ename from emp where deptno not in (select deptno from emp where eno in (7792,7698));
+13)select max(sal),min(sal),avg(sal) from emp where deptno=10;
+select deptno,max(sal),min(sal),avg(sal) from emp group by deptno;
+after group by dont write where instead we use having
+select deptno,max(sal),min(sal),avg(sal) from emp group by deptno having avg(sal)>850;
+select deptno,max(sal),min(sal),avg(sal) from emp group by deptno having min(sal)>850;
+select deptno,max(sal),min(sal),avg(sal) from emp group by deptno having count(*)>3;
+14)select count(*) from emp where deptno=20;
+15)select sum(sal) from emp where job='CLERK';
+
+select deptno from emp
+select DISTINCT deptno from emp;
+
+Before groupby we can write where but after group be we should not, instead use having
+
+
+
+
+
+
+
+
