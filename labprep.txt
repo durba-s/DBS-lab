@@ -1,0 +1,313 @@
+create user abc identified by abc;
+grant connect to abc;
+grant unlimited tablespace to abc;
+select * from dba_sys_privs where grantee='SYS' and privilege like '%PROCEDURE%';
+grant EXECUTE ANY PROCEDURE, DEBUG ANY PROCEDURE,create any procedure,ALTER ANY PROCEDURE,CREATE PROCEDURE, DROP ANY PROCEDURE to abc;
+select * from dba_sys_privs where grantee='SYS' and privilege like '%VIEW%';
+grant CREATE VIEW,DROP ANY VIEW,CREATE ANY VIEW, MERGE ANY VIEW, UNDER ANY VIEW to abc;
+select * from dba_sys_privs where grantee='SYS' and privilege like '%TRIGGER%';
+grant CREATE ANY TRIGGER,ALTER ANY TRIGGER,CREATE TRIGGER,ADMINISTER DATABASE TRIGGER,DROP ANY TRIGGER to abc;
+
+
+set serveroutput on
+set linesize 300
+
+
+create or replace procedure p1 as
+    begin
+    dbms_output.put_line('Hello');
+    end;
+    /
+show errors;
+____________________________________________________________________________________________________________________________
+Lab Exam Previous Year
+____________________________________________________________________________________________________________________________
+create table product (prid int primary key, prname varchar(10), price int);
+create table supplier (supid int primary key, supname varchar(10), suploc varchar(10));
+create table supply (pid int, sid int, qty int);
+
+alter table supply add constraint pk_supply primary key (pid, sid);
+alter table supply add constraint fk_supply_product foreign key (pid) references product(prid);
+alter table supply add constraint fk_supply_supplier foreign key (sid) references supplier(supid);
+
+insert into product values (101, 'Scale', 30);
+insert into product values (104, 'Sketch', 110);
+insert into product values (105, 'Tape', 15);
+insert into product values (107, 'Pad', 160);
+insert into product values (110, 'Pad', 25);
+insert into product values (112, 'Pin', 5);
+insert into product values (124, 'Pin', 120);
+insert into product values (135, 'Paper', 110);
+
+insert into supplier values (3, 'Crown', 'Delhi');
+insert into supplier values (5, 'Topper', 'Delhi');
+insert into supplier values (7, 'Avon', 'Mumbai');
+insert into supplier values (11, 'Swan', 'Hyderabad');
+insert into supplier values (13, 'Rally', 'Chennai');
+insert into supplier values (15, 'Buddy', 'Chennai');
+
+insert into supply values (104, 7, 420);
+insert into supply values (104, 13, 380);
+insert into supply values (105, 13, 350);
+insert into supply values (107, 5, 500);
+insert into supply values (107, 11, 200);
+insert into supply values (107, 7, 10);
+insert into supply values (110, 3, 22);
+insert into supply values (110, 5, 35);
+insert into supply values (110, 13, 150);
+insert into supply values (110, 15, 20);
+insert into supply values (124, 7, 300);
+insert into supply values (124, 11, 34);
+insert into supply values (124, 13, 12);
+
+1)select prid,prname,qty from supply,product where prid=pid and prid in(select prid from product minus select pid from supply where qty<=200);
+2)select prname,supname from supplier,product,supply where prid=pid and supid=sid and qty=(select max(qty) from supply);
+3)select supname from supplier where supid in (select sid from supply,product where pid=prid and price>100 and qty>=400);
+4)select prname,count(qty) from product left outer join supply on pid=prid group by prid,prname;
+5) create or replace function fun(a in number) return number is
+    n number;
+    t number;
+    begin
+     select count(qty) into t from product left outer join supply on pid=prid group by prid,prname having prid=a;
+    if t>0 then
+    select sum(qty) into n from product left outer join supply on pid=prid group by prid,prname having prid=a;
+    else 
+    n:=0;
+    end if;
+    return n;
+    end;
+    /
+test-
+declare
+      n number;
+      begin
+      n := fun(101);
+      dbms_output.put_line('Quantity: ' || n);
+   end;
+  /
+
+6)create or replace procedure proc1(b in number) as
+ns number;
+n number;
+pn varchar(10);
+begin
+n:=fun(b);
+if n > 0 then
+select prname into pn from  product where prid=b;
+select count(qty) into ns from  product left outer join supply on pid=prid where pid=b;
+dbms_output.put_line(pn||'has supplied '||n||' quantities by '||ns||' numbers of supplierss');
+else
+dbms_output.put_line('Sorry not supplied');
+end if;
+end;
+/
+
+test-exec proc1(101);
+
+_______________________________________________________________
+---------------------------------------------------------------
+create table student (scode int primary key,sname varchar(15),sage int,sbranch varchar(5));
+insert into student values(1001,'Kriti',18,'MECH');
+insert into student values(1003,'Joginder',19,'MECH');
+insert into student values(1006,'Mani',22,'CSE');
+insert into student values(1021,'Farooq',21,'EEE');
+insert into student values(1025,'Girija',19,'MECH');
+insert into student values(1032,'Girija',22,'CSE');
+insert into student values(1038,'Rajanish',21,'MECH');
+insert into student values(1056,'Praneet',23,'EEE');
+insert into student values(1059,'Stephen',19,'CSE');
+insert into student values(1068,'Stephen',20,'CIVIL');
+
+create table course (cid int primary key,cname varchar(7) unique,credit int);
+insert into course values(10,'DBMS',3);
+insert into course values(20,'CRYPT',4);
+insert into course values(50,'ARCH',5);
+insert into course values(80,'MATHS',3);
+insert into course values(90,'CRYPTO',3);
+
+create table sc(sid int,cno int,grade char(1),primary key(sid,cno));
+alter table sc add constraint fkB1 foreign key (sid) references student(scode);
+alter table sc add constraint fkB2 foreign key (cno) references course(cid);
+insert into sc values(1001,10,'A');
+insert into sc values(1001,50,'A');
+insert into sc values(1006,10,'A');
+insert into sc values(1006,20,'B');
+insert into sc values(1006,80,'A');
+insert into sc values(1006,90,'D');
+insert into sc values(1021,80,'A');
+insert into sc values(1021,90,'D');
+insert into sc values(1025,90,'B');
+insert into sc values(1059,10,'A');
+insert into sc values(1056,80,'A');
+insert into sc values(1056,90,'D');
+insert into sc values(1068,50,'A');
+insert into sc values(1068,90,'B');
+1)select sname from student where ((Select count(*) from sc where sid=scode)=(select count(*) from sc where sid=scode and grade='A')) and exists(select count(*) from sc where sid=scode having count(*)>0);
+2)select cname from course where cid in(select cno from sc group by cno,grade having count(*)>1 and grade='A');
+3)select sname,sage,count(grade) from student left outer join sc on sid=scode group by sid,sname,sage;
+4)select cid,cname from course where cid in
+(select cno from sc group by cno having count(*)>=3 minus select cno from sc,student where scode=sid and sbranch='CSE');
+5)create or replace function fun(a in number) return number as
+s number;
+begin
+select count(grade) into s from student left outer join sc on sid=scode group by scode having scode=a;
+return s;
+end;
+/
+
+test-declare
+    a number;
+    begin
+    a:=fun(1003);
+    dbms_output.put_line('reg course '||a);
+    end;
+    /
+6) create or replace procedure proc1(a in number) as
+nr number;
+n varchar(15);
+begin
+nr:=fun(a);
+if nr > 0 then
+select sname into n from student where scode=a;
+dbms_output.put_line('Student with ID '||a||' Name: '||n||' has registered for '||nr||' courses');
+else
+dbms_output.put_line('Sorry not registered for any course');
+end if;
+end;
+______________________________________________________________________________________
+--------------------------------------------------------------------------------------
+create table airport(aid varchar(8) primary key,aname varchar(20),city varchar(15));
+insert into airport values('DLI1','IGIT1','Delhi');
+insert into airport values('MUB1','CSIA1','Mumbai');
+insert into airport values('DLI2','IGIT2','Delhi');
+insert into airport values('KOL','NSCBIT','Kolkata');
+insert into airport values('HYD','RJIA','Hyderabad');
+insert into airport values('MUM2','CSIA2','Mumbai');
+
+create table flight(fid varchar(20) primary key,fname varchar(20),da varchar(8),aa varchar(8),foreign key (da) references airport(aid),foreign key (aa) references airport(aid));
+insert into flight values('AI121','Air India','DLI1','MUB1');
+insert into flight values('AI122','Air India','DLI2','KOL');
+insert into flight values('AI123','Air India','MUB1','DLI2');
+insert into flight values('ING123','Indigo','HYD','MUM2');
+insert into flight values('ING121','Indigo','MUM2','DLI1');
+insert into flight values('ING120','Indigo','DLI2','MUB1');
+insert into flight values('SPJ121','Spicejet','MUM2','DLI2');
+insert into flight values('SPJ120','Spicejet','HYD','DLI2');
+insert into flight values('SPJ123','Spicejet','DLI1','MUM2');
+
+create table booking(tikno int primary key,name varchar(20),fid varchar(10),seat int,foreign key (fid) references flight(fid));
+insert into booking values(1001,'Kartik','AI121',12);
+insert into booking values(1002,'Jeevan','AI121',13);
+insert into booking values(1003,'Rashmi','AI121',6);
+insert into booking values(1004,'Pooja','ING123',13);
+insert into booking values(1005,'Govind','ING123',11);
+insert into booking values(1006,'Murali','ING123',12);
+insert into booking values(1007,'Sumit','SPJ121',13);
+insert into booking values(1008,'Pooja','SPJ120',11);
+insert into booking values(1009,'Jeevan','ING121',14);
+insert into booking values(1010,'Rashmi','AI123',15);
+
+1)select a.fname from flight a,booking b where a.fid=b.fid group by a.fid,a.fname having count(*)>=3;
+2)select a.aname, a.city, (select count(*) from flight f where a.aid = f.da) as dep, (select count(*) from flight f where a.aid = f.aa) as arr from airport a;
+select aname,city,count(*) from airport left join flight on aid=aa or aid=da group by aid,aname,city;
+3)select f.fname,count(b.fid) from flight f,booking b where f.fid=b.fid and b.name like 'R%' group by f.fname;
+//display 0 also
+select f.fname,count(b.fid) from flight f left join (select fid from booking where name like 'R%') b on b.fid=f.fid group by f.fname;
+4)select distinct aname from airport,flight where aid=aa or aid=da group by fname,aname having count(*)=(Select max(count(*)) from airport,flight where aid=aa or aid=da group by fname,aname);
+
+select aid,fid,max(co1) from (select aid,fid,count(*) co1 from airport,flight where aid=aa or aid=da group by aid,fid) group by sid,fid 
+5)create or replace function fun(a in varchar2) return number as
+bs number;
+begin
+select count(b.seat) into bs from flight f left outer join booking b on b.fid=f.fid group by f.fid having f.fid=a;
+return bs;
+end;
+/
+test-declare
+    a number;
+    begin
+    a:=fun('ING123');
+    dbms_output.put_line(a);
+    end;
+    /
+6)create or replace procedure proc2(a in varchar2) as
+bs number;
+na varchar(20);
+begin
+bs:=fun(a);
+if bs > 0 then
+select fname into na from flight where fid=a;
+dbms_output.put_line('Flight with number '||a||' name '||na||' has '||bs||' no of bookings');
+else
+dbms_output.put_line('sorry zero bookings');
+end if;
+end;
+/
+_____________________________________________________________________
+-------------------------------------------------------------------------
+create table actor(aid int primary key,aname varchar(20),aage int,acity char(10));
+
+insert into actor values(1001, 'Salman Khan', 52, 'Mumbai');
+insert into actor values(1002, 'Shah Rukh Khan', 52, 'Kolkata');
+insert into actor values(1003, 'Akshay Kumar', 50, 'Delhi');
+insert into actor values(1004, 'Amitabh Bachchan', 75, 'Delhi');
+insert into actor values(1005, 'Aamir Khan', 53, 'Mumbai');
+insert into actor values(1006, 'Ranbir Kapoor', 35, 'Bangalore');
+insert into actor values(1007, 'Irfan Khan', 51, 'Bangalore');
+insert into actor values(1008, 'Ajay Devgan', 49,' Kolkata');
+insert into actor values(1009, 'Sanjay Dutt', 58 ,'Hyderabad');
+insert into actor values(1010, 'Anil Kapoor', 61, 'Hyderabad');
+
+create table director(did int primary key,dname varchar(25),dcity varchar(12));
+insert into director values(101,'Nitish Tiwari','Mumbai');
+insert into director values(102,'Amole Gupte','Mumbai');
+insert into director values(103,'Rajkumar Hirani','Delhi');
+insert into director values(104,'Yash Chopra','Delhi');
+insert into director values(105,'Sanjay Leela Bhansali','Hyderabad');
+insert into director values(106,'Anurag Kashyap','Hyderabad');
+
+create table film(fid varchar(5) primary key,fname varchar(25),aid int,did int,rating int,foreign key (aid) references actor(aid),foreign key (did) references director(did));
+insert into film values('F101','Dangal',1005,101,8);
+insert into film values('F102','Taare Zameen Par',1005,102,8);
+insert into film values('F103','Munna Bhai',1008,102,9);
+insert into film values('F104','Jab Tak Hai Jaan',1009,103,7);
+insert into film values('F105','Dangal',1002,104,6);
+insert into film values('F106','Lamhe',1010,104,8);
+insert into film values('F107','Silsila',1004,104,8);
+insert into film values('F108','Khamoshi',1004,105,7);
+insert into film values('F109','Devdas',1007,105,8);
+insert into film values('F110','Talvar',1007,101,9);
+
+1)select distinct a.aname from actor a,film f where a.aid=f.aid and f.aid not in(select aid from film where rating<8);
+2)select a.aname,a.aage,count(rating) from actor a left outer join film f on a.aid=f.aid group by a.aid,a.aname,a.aage;
+3)select avg(f.rating) from film f,actor a where a.aid=f.aid and a.aname like '%Khan';
+4)?select a.aname,d.dname,a.acity,d.dcity from actor a,film f,director d where a.aid=f.aid and f.did=d.did and a.acity=d.dcity;
+5)create or replace function f (a in number) return float as
+r float(3);
+n number;
+begin
+select count(rating) into n from actor a left outer join film f on a.aid=f.aid group by a.aid having a.aid=a;
+if n>0 then
+select avg(rating) into r from film where aid=a;
+else
+r:=0;
+end if;
+return r;
+end;
+/
+6)create or replace procedure proc2(a in number) as
+an varchar(25);
+af int;
+ar float(3);
+begin
+ar:=f(a);
+if ar>0 then
+select aname into an from actor where aid=a;
+select count(rating) into af from actor a left outer join film f on a.aid=f.aid group by a.aid having a.aid=a;
+dbms_output.put_line('Actor with id '||a||' name '||an||' has '||af||' no of films with '||ar||' rating');
+else
+dbms_output.put_line('Sorry no movie');
+end if;
+end;
+/
+
